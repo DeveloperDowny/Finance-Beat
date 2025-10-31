@@ -38,6 +38,9 @@ if LOCAL_RUN:
     bucket = storage.bucket()
 else:
     # --- GCP Environment
+    cred = credentials.ApplicationDefault()
+    firebase_admin.initialize_app(cred)
+    
     STORAGE_BUCKET = "finance-beat"
     db = firestore.client()
     bucket = storage.bucket(STORAGE_BUCKET)
