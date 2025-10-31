@@ -12,27 +12,36 @@ from fastapi.responses import JSONResponse, RedirectResponse, StreamingResponse
 from datetime import datetime, timedelta
 import io
 
-# -------------------------------------------
-# ✅ Initialize Firebase (Firestore + Storage)
-# -------------------------------------------
+LOCAL_RUN = os.getenv("LOCAL_RUN", "false").lower() == "true"
 
-# Path to service account key
-SERVICE_ACCOUNT_FILE = "serviceAccountKey.json"
+if LOCAL_RUN:
+    # -------------------------------------------
+    # ✅ Initialize Firebase (Firestore + Storage)
+    # -------------------------------------------
 
-if not os.path.exists(SERVICE_ACCOUNT_FILE):
-    raise FileNotFoundError("❌ serviceAccountKey.json not found. Place it in the same folder as main.py")
+    # Path to service account key
+    SERVICE_ACCOUNT_FILE = "serviceAccountKey.json"
+    STORAGE_BUCKET = "financepodcast-a5c7f.firebasestorage.app"
 
-# Initialize Firebase Admin SDK
-cred = credentials.Certificate(SERVICE_ACCOUNT_FILE)
+    if not os.path.exists(SERVICE_ACCOUNT_FILE):
+        raise FileNotFoundError("❌ serviceAccountKey.json not found. Place it in the same folder as main.py")
 
-if not firebase_admin._apps:
-    # ✅ Use your actual Firebase bucket name (as seen in the Firebase console)
-    firebase_admin.initialize_app(cred, {
-        "storageBucket": "financepodcast-a5c7f.firebasestorage.app"
-    })
+    # Initialize Firebase Admin SDK
+    cred = credentials.Certificate(SERVICE_ACCOUNT_FILE)
 
-db = firestore.client()
-bucket = storage.bucket()
+    if not firebase_admin._apps:
+        # ✅ Use your actual Firebase bucket name (as seen in the Firebase console)
+        firebase_admin.initialize_app(cred, {
+            "storageBucket": STORAGE_BUCKET
+        })
+    db = firestore.client()
+    bucket = storage.bucket()
+else:
+    STORAGE_BUCKET = "finance-beat"
+    db = firestore.client()
+    bucket = storage.bucket(STORAGE_BUCKET)
+
+
 
 # -------------------------------------------
 # ✅ FastAPI App Setup
@@ -416,5 +425,12 @@ def stream_file(record_id: str, key: str, request: Request):
 # ✅ Run Locally
 # -------------------------------------------
 if __name__ == "__main__":
+    
     import uvicorn
-    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
+    
+    if LOCAL_RUN:
+        host =  "127.0.0.1"
+    else:
+        host = "0.0.0.0"
+    port = os.getenv("PORT", "8080")
+    uvicorn.run(app, host=host, port=port)
