@@ -37,6 +37,7 @@ if LOCAL_RUN:
     db = firestore.client()
     bucket = storage.bucket()
 else:
+    # --- GCP Environment
     STORAGE_BUCKET = "finance-beat"
     db = firestore.client()
     bucket = storage.bucket(STORAGE_BUCKET)
