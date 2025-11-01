@@ -35,9 +35,9 @@ steps:
       - "--platform"
       - "managed"
       - "--memory"
-      - "4Gi"
+      - "1Gi"
       - "--cpu"
-      - "2"
+      - ".5"
 
 images:
   - "asia-south1-docker.pkg.dev/glimpsify-445707/ai-startup-evaluator-images/${_SERVICE_NAME}:$COMMIT_SHA"
